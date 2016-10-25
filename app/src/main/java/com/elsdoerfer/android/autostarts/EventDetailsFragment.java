@@ -1,6 +1,8 @@
 package com.elsdoerfer.android.autostarts;
 
-import android.app.*;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,9 +12,10 @@ import android.provider.Settings;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
+
 import com.elsdoerfer.android.autostarts.db.IntentFilterInfo;
-import com.opt.google.MarketUtils;
-import com.opt.google.RootFeatures;
+import com.elsdoerfer.android.autostarts.utils.MarketUtils;
+import com.elsdoerfer.android.autostarts.utils.RootFeatures;
 
 import java.util.ArrayList;
 

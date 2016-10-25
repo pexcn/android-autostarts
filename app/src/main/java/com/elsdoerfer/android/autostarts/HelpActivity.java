@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.WebView;
 
-import com.opt.google.RootFeatures;
+import com.elsdoerfer.android.autostarts.utils.RootFeatures;
 
 
 public class HelpActivity extends Activity {
