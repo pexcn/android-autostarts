@@ -25,7 +25,6 @@ import java.util.LinkedHashMap;
  * FLAG_RECEIVER_REGISTERED_ONLY, e.g. ACTION_SCREEN_ON, https://groups.google.com/forum/#!topic/android-platform/gQI-RN1fODw)
  */
 final class Actions {
-
     private static final Object[][] ALL = {
             // Those our users care most about, we'd like to have those in front.
             {"android.intent.action.PRE_BOOT_COMPLETED", R.string.act_pre_boot_completed, R.string.act_pre_boot_completed_detail},
