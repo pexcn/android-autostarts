@@ -1,13 +1,15 @@
 package com.elsdoerfer.android.autostarts;
 
-import java.util.LinkedHashMap;
-
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.telephony.TelephonyManager;
+
+import com.elsdoerfer.android.autostarts.utils.Utils;
+
+import java.util.LinkedHashMap;
 
 /**
  * The broadcast actions/intents we know about. This allows us to show

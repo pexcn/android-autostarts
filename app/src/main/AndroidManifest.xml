@@ -31,9 +31,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".HelpActivity"
-            android:theme="@android:style/Theme.Light" />
         <service
             android:name=".ToggleService"
             android:label="Autostarts Service" />

@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 import com.elsdoerfer.android.autostarts.db.ComponentInfo;
+import com.elsdoerfer.android.autostarts.utils.Utils;
 import com.stericson.RootTools.RootTools;
 
 import java.io.IOException;

@@ -1,16 +1,26 @@
-package com.elsdoerfer.android.autostarts;
-
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.TimeoutException;
+package com.elsdoerfer.android.autostarts.utils;
 
 import com.stericson.RootTools.RootTools;
 import com.stericson.RootTools.exceptions.RootDeniedException;
 import com.stericson.RootTools.execution.CommandCapture;
 import com.stericson.RootTools.execution.Shell;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+
 public class Utils {
-	static final String TAG = "Autostarts";
+	public static final String TAG = "Autostarts";
 	private static Boolean isSELinuxEnforcing = null;
 
 	/**
@@ -20,7 +30,7 @@ public class Utils {
 	 * From:
 	 * 	 http://stackoverflow.com/questions/309424/in-java-how-do-a-read-an-input-stream-in-to-a-string
 	 */
-	static String readStream(InputStream stream) throws IOException {
+	public static String readStream(InputStream stream) throws IOException {
 		final char[] buffer = new char[0x10000];
 		StringBuilder out = new StringBuilder();
 		Reader in = new InputStreamReader(stream, "UTF-8");
@@ -36,7 +46,7 @@ public class Utils {
 	/**
 	 * Stupid Java's LinkedHashMap has no indexOf() method.
 	 */
-	static int getHashMapIndex(LinkedHashMap<?, ?> map, Object search) {
+	public static int getHashMapIndex(LinkedHashMap<?, ?> map, Object search) {
 		Set<?> keys = map.keySet();
 		Iterator<?> i = keys.iterator();
 		Object curr;
@@ -59,7 +69,7 @@ public class Utils {
 
 	 * @throws ShellFailedException
 	 */
-	static boolean runRootCommand(final String command, String[] env,
+	public static boolean runRootCommand(final String command, String[] env,
 	                              int timeout, Shell.ShellContext context) throws ShellFailedException {
 
 		RootTools.debugMode = true;

@@ -7,6 +7,7 @@ import android.os.SystemClock;
 import android.util.Log;
 import com.elsdoerfer.android.autostarts.ReceiverReader.OnLoadProgressListener;
 import com.elsdoerfer.android.autostarts.db.IntentFilterInfo;
+import com.elsdoerfer.android.autostarts.utils.Utils;
 
 
 // TODO: We could speed this up (probably not too much) by returning

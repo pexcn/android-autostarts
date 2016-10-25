@@ -1,12 +1,14 @@
 package com.elsdoerfer.android.autostarts;
 
-import java.util.ArrayList;
-
 import android.app.DialogFragment;
 import android.app.ExpandableListActivity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.content.*;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -15,8 +17,15 @@ import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
-import android.view.*;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ExpandableListView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -24,6 +33,8 @@ import android.widget.Toast;
 
 import com.elsdoerfer.android.autostarts.db.ComponentInfo;
 import com.elsdoerfer.android.autostarts.db.IntentFilterInfo;
+
+import java.util.ArrayList;
 
 public class ListActivity extends ExpandableListActivity {
 
@@ -392,10 +403,6 @@ public class ListActivity extends ExpandableListActivity {
 
 		case R.id.reload:
 			loadAndApply();
-			return true;
-
-		case R.id.help:
-			startActivity(new Intent(this, HelpActivity.class));
 			return true;
 
 		default:
