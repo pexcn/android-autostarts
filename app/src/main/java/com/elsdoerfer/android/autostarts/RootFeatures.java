@@ -1,4 +1,4 @@
-package com.elsdoerfer.android.autostarts.utils;
+package com.elsdoerfer.android.autostarts;
 
 /**
  * Amazon-specific functionality.

@@ -10,7 +10,6 @@ import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
 
 import com.elsdoerfer.android.autostarts.db.ComponentInfo;
-import com.elsdoerfer.android.autostarts.utils.Utils;
 import com.stericson.roottools.execution.Shell;
 
 /**

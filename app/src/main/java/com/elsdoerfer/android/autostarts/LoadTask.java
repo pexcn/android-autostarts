@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.elsdoerfer.android.autostarts.ReceiverReader.OnLoadProgressListener;
 import com.elsdoerfer.android.autostarts.db.IntentFilterInfo;
-import com.elsdoerfer.android.autostarts.utils.Utils;
 
 import java.util.ArrayList;
 

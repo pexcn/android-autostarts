@@ -463,16 +463,13 @@ public class ListActivity extends ExpandableListActivity {
             // our custom subclass "final" - aaarg.
             CharSequence base = getString(R.string.no_receivers_filtered) +
                     "\n\n";
-            SpannableString full = new SpannableString(
-                    base +
-                            getString(R.string.change_filter_settings)
+            SpannableString full = new SpannableString(base + getString(R.string.change_filter_settings)
             );
             full.setSpan(new InternalURLSpan(new OnClickListener() {
-                        public void onClick(View v) {
-                            mActionBarMenu.performIdentifierAction(R.id.view, 0);
-                        }
-                    }), base.length(), full.length(),
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                public void onClick(View v) {
+                    mActionBarMenu.performIdentifierAction(R.id.view, 0);
+                }
+            }), base.length(), full.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             emptyText.setText(full);
 
             // Copied from "Linkify.addLinkMovementMethod" (which is private).

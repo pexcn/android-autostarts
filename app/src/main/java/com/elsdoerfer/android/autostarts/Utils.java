@@ -1,4 +1,4 @@
-package com.elsdoerfer.android.autostarts.utils;
+package com.elsdoerfer.android.autostarts;
 
 import com.stericson.roottools.RootTools;
 import com.stericson.roottools.exceptions.RootDeniedException;
