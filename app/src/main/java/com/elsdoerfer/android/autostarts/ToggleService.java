@@ -10,7 +10,7 @@ import android.util.Log;
 import android.widget.Toast;
 import com.elsdoerfer.android.autostarts.db.ComponentInfo;
 import com.elsdoerfer.android.autostarts.utils.Utils;
-import com.stericson.RootTools.RootTools;
+import com.stericson.roottools.RootTools;
 
 import java.io.IOException;
 import java.util.HashMap;

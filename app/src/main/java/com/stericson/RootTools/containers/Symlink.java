@@ -20,28 +20,25 @@
  * limitations under that License.
  */
 
-package com.stericson.RootTools.containers;
+package com.stericson.roottools.containers;
 
 import java.io.File;
 
-public class Symlink
-{
+@SuppressWarnings({"unused", "WeakerAccess"})
+public class Symlink {
     protected final File file;
     protected final File symlinkPath;
 
-    public Symlink(File file, File path)
-    {
+    public Symlink(File file, File path) {
         this.file = file;
         symlinkPath = path;
     }
 
-    public File getFile()
-    {
+    public File getFile() {
         return this.file;
     }
 
-    public File getSymlinkPath()
-    {
+    public File getSymlinkPath() {
         return symlinkPath;
     }
 }

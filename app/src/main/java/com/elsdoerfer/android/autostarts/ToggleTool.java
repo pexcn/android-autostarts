@@ -11,7 +11,7 @@ import android.util.Log;
 
 import com.elsdoerfer.android.autostarts.db.ComponentInfo;
 import com.elsdoerfer.android.autostarts.utils.Utils;
-import com.stericson.RootTools.execution.Shell;
+import com.stericson.roottools.execution.Shell;
 
 /**
 How we toggle a component's states. Beware: This is a long comment.
