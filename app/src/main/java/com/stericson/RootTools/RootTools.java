@@ -20,7 +20,22 @@
  * limitations under that License.
  */
 
-package com.stericson.RootTools;
+package com.stericson.roottools;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
+
+import com.stericson.roottools.containers.Mount;
+import com.stericson.roottools.containers.Permissions;
+import com.stericson.roottools.containers.Symlink;
+import com.stericson.roottools.exceptions.RootDeniedException;
+import com.stericson.roottools.execution.Command;
+import com.stericson.roottools.execution.Shell;
+import com.stericson.roottools.internal.Remounter;
+import com.stericson.roottools.internal.RootToolsInternalMethods;
+import com.stericson.roottools.internal.Runner;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,24 +43,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
-
-import com.stericson.RootTools.containers.Mount;
-import com.stericson.RootTools.containers.Permissions;
-import com.stericson.RootTools.containers.Symlink;
-import com.stericson.RootTools.exceptions.RootDeniedException;
-import com.stericson.RootTools.execution.Command;
-import com.stericson.RootTools.execution.Shell;
-import com.stericson.RootTools.internal.Remounter;
-import com.stericson.RootTools.internal.RootToolsInternalMethods;
-import com.stericson.RootTools.internal.Runner;
-
-public final class RootTools
-{
-
+@SuppressWarnings({"unused", "WeakerAccess"})
+public final class RootTools {
     /**
      * This class is the gateway to every functionality within the RootTools library.The developer
      * should only have access to this class and this class only.This means that this class should
@@ -61,20 +60,15 @@ public final class RootTools
 
     private static RootToolsInternalMethods rim = null;
 
-    public static void setRim(RootToolsInternalMethods rim)
-    {
+    public static void setRim(RootToolsInternalMethods rim) {
         RootTools.rim = rim;
     }
 
-    private static final RootToolsInternalMethods getInternals()
-    {
-        if (rim == null)
-        {
+    private static RootToolsInternalMethods getInternals() {
+        if (rim == null) {
             RootToolsInternalMethods.getInstance();
             return rim;
-        }
-        else
-        {
+        } else {
             return rim;
         }
     }
@@ -84,7 +78,7 @@ public final class RootTools
     // --------------------
 
     public static boolean debugMode = false;
-    public static List<String> lastFoundBinaryPaths = new ArrayList<String>();
+    public static List<String> lastFoundBinaryPaths = new ArrayList<>();
     public static String utilPath;
 
     /**
@@ -120,8 +114,7 @@ public final class RootTools
      * @param util Name of the utility to check.
      * @return boolean to indicate whether the binary is installed and has appropriate permissions.
      */
-    public static boolean checkUtil(String util)
-    {
+    public static boolean checkUtil(String util) {
 
         return getInternals().checkUtil(util);
     }
@@ -131,8 +124,7 @@ public final class RootTools
      *
      * @throws IOException
      */
-    public static void closeAllShells() throws IOException
-    {
+    public static void closeAllShells() throws IOException {
         Shell.closeAll();
     }
 
@@ -141,8 +133,7 @@ public final class RootTools
      *
      * @throws IOException
      */
-    public static void closeCustomShell() throws IOException
-    {
+    public static void closeCustomShell() throws IOException {
         Shell.closeCustomShell();
     }
 
@@ -152,14 +143,10 @@ public final class RootTools
      * @param root a <code>boolean</code> to specify whether to close the root shell or the standard shell.
      * @throws IOException
      */
-    public static void closeShell(boolean root) throws IOException
-    {
-        if (root)
-        {
+    public static void closeShell(boolean root) throws IOException {
+        if (root) {
             Shell.closeRootShell();
-        }
-        else
-        {
+        } else {
             Shell.closeShell();
         }
     }
@@ -176,8 +163,7 @@ public final class RootTools
      * @return true if it was successfully copied
      */
     public static boolean copyFile(String source, String destination, boolean remountAsRw,
-                                   boolean preserveFileAttributes)
-    {
+                                   boolean preserveFileAttributes) {
         return getInternals().copyFile(source, destination, remountAsRw, preserveFileAttributes);
     }
 
@@ -188,8 +174,7 @@ public final class RootTools
      * @param remountAsRw remounts the destination as read/write before writing to it
      * @return true if it was successfully deleted
      */
-    public static boolean deleteFileOrDirectory(String target, boolean remountAsRw)
-    {
+    public static boolean deleteFileOrDirectory(String target, boolean remountAsRw) {
         return getInternals().deleteFileOrDirectory(target, remountAsRw);
     }
 
@@ -200,8 +185,7 @@ public final class RootTools
      *             file and its name.
      * @return a boolean that will indicate whether or not the file exists.
      */
-    public static boolean exists(final String file)
-    {
+    public static boolean exists(final String file) {
         return exists(file, false);
     }
 
@@ -213,8 +197,7 @@ public final class RootTools
      * @param isDir boolean that represent whether or not we are looking for a directory
      * @return a boolean that will indicate whether or not the file exists.
      */
-    public static boolean exists(final String file, boolean isDir)
-    {
+    public static boolean exists(final String file, boolean isDir) {
         return getInternals().exists(file, isDir);
     }
 
@@ -228,8 +211,7 @@ public final class RootTools
      *                 path to a binary that will provide these, or you can use
      *                 RootTools.getWorkingToolbox()
      */
-    public static void fixUtil(String util, String utilPath)
-    {
+    public static void fixUtil(String util, String utilPath) {
         getInternals().fixUtil(util, utilPath);
     }
 
@@ -244,8 +226,7 @@ public final class RootTools
      * exceptions.
      * @throws Exception if the operation cannot be completed.
      */
-    public static boolean fixUtils(String[] utils) throws Exception
-    {
+    public static boolean fixUtils(String[] utils) throws Exception {
         return getInternals().fixUtils(utils);
     }
 
@@ -255,8 +236,7 @@ public final class RootTools
      * found at can be retrieved via the variable lastFoundBinaryPath, if the binary was
      * found in more than one location this will contain all of these locations.
      */
-    public static boolean findBinary(String binaryName)
-    {
+    public static boolean findBinary(String binaryName) {
         return getInternals().findBinary(binaryName);
     }
 
@@ -264,16 +244,14 @@ public final class RootTools
      * @param path String that represents the path to the Busybox binary you want to retrieve the version of.
      * @return BusyBox version is found, "" if not found.
      */
-    public static String getBusyBoxVersion(String path)
-    {
+    public static String getBusyBoxVersion(String path) {
         return getInternals().getBusyBoxVersion(path);
     }
 
     /**
      * @return BusyBox version is found, "" if not found.
      */
-    public static String getBusyBoxVersion()
-    {
+    public static String getBusyBoxVersion() {
         return RootTools.getBusyBoxVersion("");
     }
 
@@ -283,8 +261,7 @@ public final class RootTools
      *
      * @return <code>null</code> If we cannot return the list of applets.
      */
-    public static List<String> getBusyBoxApplets() throws Exception
-    {
+    public static List<String> getBusyBoxApplets() throws Exception {
         return RootTools.getBusyBoxApplets("");
     }
 
@@ -295,8 +272,7 @@ public final class RootTools
      * @param path Path to the busybox binary that you want the list of applets from.
      * @return <code>null</code> If we cannot return the list of applets.
      */
-    public static List<String> getBusyBoxApplets(String path) throws Exception
-    {
+    public static List<String> getBusyBoxApplets(String path) throws Exception {
         return getInternals().getBusyBoxApplets(path);
     }
 
@@ -307,11 +283,10 @@ public final class RootTools
      * @param shellPath a <code>String</code> to Indicate the path to the shell that you want to open.
      * @param timeout   an <code>int</code> to Indicate the length of time before giving up on opening a shell.
      * @throws TimeoutException
-     * @throws com.stericson.RootTools.exceptions.RootDeniedException
+     * @throws com.stericson.roottools.exceptions.RootDeniedException
      * @throws IOException
      */
-    public static Shell getCustomShell(String shellPath, int timeout) throws IOException, TimeoutException, RootDeniedException
-    {
+    public static Shell getCustomShell(String shellPath, int timeout) throws IOException, TimeoutException, RootDeniedException {
         return Shell.startCustomShell(shellPath, timeout);
     }
 
@@ -321,11 +296,10 @@ public final class RootTools
      *
      * @param shellPath a <code>String</code> to Indicate the path to the shell that you want to open.
      * @throws TimeoutException
-     * @throws com.stericson.RootTools.exceptions.RootDeniedException
+     * @throws com.stericson.roottools.exceptions.RootDeniedException
      * @throws IOException
      */
-    public static Shell getCustomShell(String shellPath) throws IOException, TimeoutException, RootDeniedException
-    {
+    public static Shell getCustomShell(String shellPath) throws IOException, TimeoutException, RootDeniedException {
         return RootTools.getCustomShell(shellPath, 10000);
     }
 
@@ -335,8 +309,7 @@ public final class RootTools
      * file or if the file could not be found or permissions couldn't be determined then
      * permissions will be null.
      */
-    public static Permissions getFilePermissionsSymlinks(String file)
-    {
+    public static Permissions getFilePermissionsSymlinks(String file) {
         return getInternals().getFilePermissionsSymlinks(file);
     }
 
@@ -347,8 +320,7 @@ public final class RootTools
      * @param file path to the file that you wish to return the inode number
      * @return String The inode number for this file or "" if the inode number could not be found.
      */
-    public static String getInode(String file)
-    {
+    public static String getInode(String file) {
         return getInternals().getInode(file);
     }
 
@@ -361,8 +333,7 @@ public final class RootTools
      * @return <code>ArrayList<Mount></code> an ArrayList of the class Mount.
      * @throws Exception if we cannot return the mount points.
      */
-    public static ArrayList<Mount> getMounts() throws Exception
-    {
+    public static ArrayList<Mount> getMounts() throws Exception {
         return getInternals().getMounts();
     }
 
@@ -374,8 +345,7 @@ public final class RootTools
      * @return <code>String</code> What the mount is mounted as.
      * @throws Exception if we cannot determine how the mount is mounted.
      */
-    public static String getMountedAs(String path) throws Exception
-    {
+    public static String getMountedAs(String path) throws Exception {
         return getInternals().getMountedAs(path);
     }
 
@@ -384,8 +354,7 @@ public final class RootTools
      *
      * @return <code>List<String></code> A List of Strings representing the environment variable $PATH
      */
-    public static List<String> getPath()
-    {
+    public static List<String> getPath() {
         return Arrays.asList(System.getenv("PATH").split(":"));
     }
 
@@ -398,17 +367,13 @@ public final class RootTools
      * @param shellContext the context to execute the shell with
      * @param retry        a <code>int</code> to indicate how many times the ROOT shell should try to open with root priviliges...
      * @throws TimeoutException
-     * @throws com.stericson.RootTools.exceptions.RootDeniedException
+     * @throws com.stericson.roottools.exceptions.RootDeniedException
      * @throws IOException
      */
-    public static Shell getShell(boolean root, int timeout, Shell.ShellContext shellContext, int retry) throws IOException, TimeoutException, RootDeniedException
-    {
-        if (root)
-        {
+    public static Shell getShell(boolean root, int timeout, Shell.ShellContext shellContext, int retry) throws IOException, TimeoutException, RootDeniedException {
+        if (root) {
             return Shell.startRootShell(timeout, shellContext, retry);
-        }
-        else
-        {
+        } else {
             return Shell.startShell(timeout);
         }
     }
@@ -421,11 +386,10 @@ public final class RootTools
      * @param timeout      an <code>int</code> to Indicate the length of time to wait before giving up on opening a shell.
      * @param shellContext the context to execute the shell with
      * @throws TimeoutException
-     * @throws com.stericson.RootTools.exceptions.RootDeniedException
+     * @throws com.stericson.roottools.exceptions.RootDeniedException
      * @throws IOException
      */
-    public static Shell getShell(boolean root, int timeout, Shell.ShellContext shellContext) throws IOException, TimeoutException, RootDeniedException
-    {
+    public static Shell getShell(boolean root, int timeout, Shell.ShellContext shellContext) throws IOException, TimeoutException, RootDeniedException {
         return getShell(root, timeout, shellContext, 3);
     }
 
@@ -436,11 +400,10 @@ public final class RootTools
      * @param root         a <code>boolean</code> to Indicate whether or not you want to open a root shell or a standard shell
      * @param shellContext the context to execute the shell with
      * @throws TimeoutException
-     * @throws com.stericson.RootTools.exceptions.RootDeniedException
+     * @throws com.stericson.roottools.exceptions.RootDeniedException
      * @throws IOException
      */
-    public static Shell getShell(boolean root, Shell.ShellContext shellContext) throws IOException, TimeoutException, RootDeniedException
-    {
+    public static Shell getShell(boolean root, Shell.ShellContext shellContext) throws IOException, TimeoutException, RootDeniedException {
         return getShell(root, 0, shellContext, 3);
     }
 
@@ -451,11 +414,10 @@ public final class RootTools
      * @param root    a <code>boolean</code> to Indicate whether or not you want to open a root shell or a standard shell
      * @param timeout an <code>int</code> to Indicate the length of time to wait before giving up on opening a shell.
      * @throws TimeoutException
-     * @throws com.stericson.RootTools.exceptions.RootDeniedException
+     * @throws com.stericson.roottools.exceptions.RootDeniedException
      * @throws IOException
      */
-    public static Shell getShell(boolean root, int timeout) throws IOException, TimeoutException, RootDeniedException
-    {
+    public static Shell getShell(boolean root, int timeout) throws IOException, TimeoutException, RootDeniedException {
         return getShell(root, timeout, Shell.defaultContext, 3);
     }
 
@@ -465,11 +427,10 @@ public final class RootTools
      *
      * @param root a <code>boolean</code> to Indicate whether or not you want to open a root shell or a standard shell
      * @throws TimeoutException
-     * @throws com.stericson.RootTools.exceptions.RootDeniedException
+     * @throws com.stericson.roottools.exceptions.RootDeniedException
      * @throws IOException
      */
-    public static Shell getShell(boolean root) throws IOException, TimeoutException, RootDeniedException
-    {
+    public static Shell getShell(boolean root) throws IOException, TimeoutException, RootDeniedException {
         return RootTools.getShell(root, 0);
     }
 
@@ -481,8 +442,8 @@ public final class RootTools
      * then the value is -1
      * @throws TimeoutException
      */
-    public static long getSpace(String path)
-    {
+    @SuppressWarnings("JavaDoc")
+    public static long getSpace(String path) {
         return getInternals().getSpace(path);
     }
 
@@ -494,8 +455,7 @@ public final class RootTools
      * @return <code>String</code> a String that represent the symlink for a specified file or an
      * empty string if no symlink exists.
      */
-    public static String getSymlink(String file)
-    {
+    public static String getSymlink(String file) {
         return getInternals().getSymlink(file);
     }
 
@@ -509,8 +469,7 @@ public final class RootTools
      * @return <code>ArrayList<Symlink></code> an ArrayList of the class Symlink.
      * @throws Exception if we cannot return the Symlinks.
      */
-    public static ArrayList<Symlink> getSymlinks(String path) throws Exception
-    {
+    public static ArrayList<Symlink> getSymlinks(String path) throws Exception {
         return getInternals().getSymlinks(path);
     }
 
@@ -521,8 +480,7 @@ public final class RootTools
      *
      * @return String that indicates the available toolbox to use for accessing applets.
      */
-    public static String getWorkingToolbox()
-    {
+    public static String getWorkingToolbox() {
         return getInternals().getWorkingToolbox();
     }
 
@@ -534,8 +492,7 @@ public final class RootTools
      * space on SDCard. Will also return <code>false</code>, if the SDCard is not mounted as
      * read/write
      */
-    public static boolean hasEnoughSpaceOnSdCard(long updateSize)
-    {
+    public static boolean hasEnoughSpaceOnSdCard(long updateSize) {
         return getInternals().hasEnoughSpaceOnSdCard(updateSize);
     }
 
@@ -546,8 +503,8 @@ public final class RootTools
      * @param box  Should contain "toolbox" or "busybox"
      * @return true if it contains this util
      */
-    public static boolean hasUtil(final String util, final String box)
-    {
+    @SuppressWarnings("JavaDoc")
+    public static boolean hasUtil(final String util, final String box) {
         //TODO Convert this to use the new shell.
         return getInternals().hasUtil(util, box);
     }
@@ -564,8 +521,7 @@ public final class RootTools
      * @return a <code>boolean</code> which indicates whether or not we were able to create the new
      * file.
      */
-    public static boolean installBinary(Context context, int sourceId, String destName, String mode)
-    {
+    public static boolean installBinary(Context context, int sourceId, String destName, String mode) {
         return getInternals().installBinary(context, sourceId, destName, mode);
     }
 
@@ -580,8 +536,7 @@ public final class RootTools
      * @return a <code>boolean</code> which indicates whether or not we were able to create the new
      * file.
      */
-    public static boolean installBinary(Context context, int sourceId, String binaryName)
-    {
+    public static boolean installBinary(Context context, int sourceId, String binaryName) {
         return installBinary(context, sourceId, binaryName, "700");
     }
 
@@ -593,8 +548,7 @@ public final class RootTools
      * @return a <code>boolean</code> which indicates whether or not
      * the binary already exists.
      */
-    public static boolean hasBinary(Context context, String binaryName)
-    {
+    public static boolean hasBinary(Context context, String binaryName) {
         return getInternals().isBinaryAvailable(context, binaryName);
     }
 
@@ -606,8 +560,7 @@ public final class RootTools
      * @param path   Path to the busybox binary that you want to check. (do not include binary name)
      * @return <code>true</code> if applet is available, false otherwise.
      */
-    public static boolean isAppletAvailable(String applet, String path)
-    {
+    public static boolean isAppletAvailable(String applet, String path) {
         return getInternals().isAppletAvailable(applet, path);
     }
 
@@ -618,8 +571,7 @@ public final class RootTools
      * @param applet The applet to check for.
      * @return <code>true</code> if applet is available, false otherwise.
      */
-    public static boolean isAppletAvailable(String applet)
-    {
+    public static boolean isAppletAvailable(String applet) {
         return RootTools.isAppletAvailable(applet, "");
     }
 
@@ -627,21 +579,19 @@ public final class RootTools
      * @return <code>true</code> if your app has been given root access.
      * @throws TimeoutException if this operation times out. (cannot determine if access is given)
      */
-    public static boolean isAccessGiven()
-    {
+    @SuppressWarnings("JavaDoc")
+    public static boolean isAccessGiven() {
         return getInternals().isAccessGiven();
     }
 
     /**
      * @return <code>true</code> if BusyBox was found.
      */
-    public static boolean isBusyboxAvailable()
-    {
+    public static boolean isBusyboxAvailable() {
         return findBinary("busybox");
     }
 
-    public static boolean isNativeToolsReady(int nativeToolsId, Context context)
-    {
+    public static boolean isNativeToolsReady(int nativeToolsId, Context context) {
         return getInternals().isNativeToolsReady(nativeToolsId, context);
     }
 
@@ -652,8 +602,8 @@ public final class RootTools
      * @return <code>true</code> if process was found
      * @throws TimeoutException (Could not determine if the process is running)
      */
-    public static boolean isProcessRunning(final String processName)
-    {
+    @SuppressWarnings("JavaDoc")
+    public static boolean isProcessRunning(final String processName) {
         //TODO convert to new shell
         return getInternals().isProcessRunning(processName);
     }
@@ -661,8 +611,7 @@ public final class RootTools
     /**
      * @return <code>true</code> if su was found.
      */
-    public static boolean isRootAvailable()
-    {
+    public static boolean isRootAvailable() {
         return findBinary("su");
     }
 
@@ -672,8 +621,7 @@ public final class RootTools
      * @param processName name of process to kill
      * @return <code>true</code> if process was found and killed successfully
      */
-    public static boolean killProcess(final String processName)
-    {
+    public static boolean killProcess(final String processName) {
         //TODO convert to new shell
         return getInternals().killProcess(processName);
     }
@@ -683,8 +631,7 @@ public final class RootTools
      *
      * @param activity pass in your Activity
      */
-    public static void offerBusyBox(Activity activity)
-    {
+    public static void offerBusyBox(Activity activity) {
         getInternals().offerBusyBox(activity);
     }
 
@@ -696,8 +643,7 @@ public final class RootTools
      * @param requestCode pass in the request code
      * @return intent fired
      */
-    public static Intent offerBusyBox(Activity activity, int requestCode)
-    {
+    public static Intent offerBusyBox(Activity activity, int requestCode) {
         return getInternals().offerBusyBox(activity, requestCode);
     }
 
@@ -706,8 +652,7 @@ public final class RootTools
      *
      * @param activity pass in your Activity
      */
-    public static void offerSuperUser(Activity activity)
-    {
+    public static void offerSuperUser(Activity activity) {
         getInternals().offerSuperUser(activity);
     }
 
@@ -719,8 +664,7 @@ public final class RootTools
      * @param requestCode pass in the request code
      * @return intent fired
      */
-    public static Intent offerSuperUser(Activity activity, int requestCode)
-    {
+    public static Intent offerSuperUser(Activity activity, int requestCode) {
         return getInternals().offerSuperUser(activity, requestCode);
     }
 
@@ -738,8 +682,7 @@ public final class RootTools
      * @return a <code>boolean</code> which indicates whether or not the partition has been
      * remounted as specified.
      */
-    public static boolean remount(String file, String mountType)
-    {
+    public static boolean remount(String file, String mountType) {
         // Recieved a request, get an instance of Remounter
         Remounter remounter = new Remounter();
         // send the request.
@@ -753,8 +696,8 @@ public final class RootTools
      *
      * @throws TimeoutException
      */
-    public static void restartAndroid()
-    {
+    @SuppressWarnings("JavaDoc")
+    public static void restartAndroid() {
         RootTools.log("Restart Android");
         killProcess("zygote");
     }
@@ -767,8 +710,7 @@ public final class RootTools
      * @param binaryName name of installed binary
      * @param parameter  parameter to append to binary like "-vxf"
      */
-    public static void runBinary(Context context, String binaryName, String parameter)
-    {
+    public static void runBinary(Context context, String binaryName, String parameter) {
         Runner runner = new Runner(context, binaryName, parameter);
         runner.start();
     }
@@ -783,8 +725,7 @@ public final class RootTools
      * @param command The command to execute in the shell
      * @throws IOException
      */
-    public static void runShellCommand(Shell shell, Command command) throws IOException
-    {
+    public static void runShellCommand(Shell shell, Command command) throws IOException {
         shell.add(command);
     }
 
@@ -800,8 +741,7 @@ public final class RootTools
      *
      * @param msg The message to output.
      */
-    public static void log(String msg)
-    {
+    public static void log(String msg) {
         log(null, msg, 3, null);
     }
 
@@ -818,8 +758,7 @@ public final class RootTools
      * @param TAG Optional parameter to define the tag that the Log will use.
      * @param msg The message to output.
      */
-    public static void log(String TAG, String msg)
-    {
+    public static void log(String TAG, String msg) {
         log(TAG, msg, 3, null);
     }
 
@@ -837,8 +776,7 @@ public final class RootTools
      * @param type The type of log, 1 for verbose, 2 for error, 3 for debug
      * @param e    The exception that was thrown (Needed for errors)
      */
-    public static void log(String msg, int type, Exception e)
-    {
+    public static void log(String msg, int type, Exception e) {
         log(null, msg, type, e);
     }
 
@@ -860,8 +798,7 @@ public final class RootTools
      *
      * @return true if logging is enabled
      */
-    public static boolean islog()
-    {
+    public static boolean islog() {
         return debugMode;
     }
 
@@ -880,19 +817,14 @@ public final class RootTools
      * @param type The type of log, 1 for verbose, 2 for error, 3 for debug
      * @param e    The exception that was thrown (Needed for errors)
      */
-    public static void log(String TAG, String msg, int type, Exception e)
-    {
-        if (msg != null && !msg.equals(""))
-        {
-            if (debugMode)
-            {
-                if (TAG == null)
-                {
+    public static void log(String TAG, String msg, int type, Exception e) {
+        if (msg != null && !msg.equals("")) {
+            if (debugMode) {
+                if (TAG == null) {
                     TAG = Constants.TAG;
                 }
 
-                switch (type)
-                {
+                switch (type) {
                     case 1:
                         Log.v(TAG, msg);
                         break;

@@ -19,34 +19,35 @@
  * See each License for the specific language governing permissions and
  * limitations under that License.
  */
-package com.stericson.RootTools.execution;
+package com.stericson.roottools.execution;
 
-import java.io.*;
+import android.content.Context;
+
+import com.stericson.roottools.RootTools;
+import com.stericson.roottools.exceptions.RootDeniedException;
+
+import java.io.BufferedReader;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import android.content.Context;
-import android.provider.DocumentsContract;
-import android.util.Log;
-
-import com.stericson.RootTools.RootTools;
-import com.stericson.RootTools.exceptions.RootDeniedException;
-
-public class Shell
-{
-
-    public static enum ShellType
-    {
+@SuppressWarnings({"unused", "WeakerAccess", "FieldCanBeLocal"})
+public class Shell {
+    public enum ShellType {
         NORMAL,
         ROOT,
         CUSTOM
     }
 
-    //this is only used with root shells
-    public static enum ShellContext
-    {
+    // This is only used with root shells
+    public enum ShellContext {
         NORMAL("normal"), //The normal context...
         SHELL("u:r:shell:s0"), //Unpriviliged shell (such as an adb shell)
         SYSTEM_SERVER("u:r:system_server:s0"), // system_server, u:r:system:s0 on some firmwares
@@ -57,13 +58,11 @@ public class Shell
 
         private String value;
 
-        private ShellContext(String value)
-        {
+        ShellContext(String value) {
             this.value = value;
         }
 
-        public String getValue()
-        {
+        public String getValue() {
             return this.value;
         }
 
@@ -88,7 +87,7 @@ public class Shell
     private final Process proc;
     private final BufferedReader in;
     private final OutputStreamWriter out;
-    private final List<Command> commands = new ArrayList<Command>();
+    private final List<Command> commands = new ArrayList<>();
 
     //indicates whether or not to close the shell
     private boolean close = false;
@@ -104,8 +103,7 @@ public class Shell
     private int totalRead = 0;
     private boolean isCleaning = false;
 
-    private Shell(String cmd, ShellType shellType, ShellContext shellContext, int shellTimeout) throws IOException, TimeoutException, RootDeniedException
-    {
+    private Shell(String cmd, ShellType shellType, ShellContext shellContext, int shellTimeout) throws IOException, TimeoutException, RootDeniedException {
 
         RootTools.log("Starting shell: " + cmd);
         RootTools.log("Context: " + shellContext.getValue());
@@ -115,12 +113,9 @@ public class Shell
         this.shellTimeout = shellTimeout > 0 ? shellTimeout : this.shellTimeout;
         this.shellContext = shellContext;
 
-        if (this.shellContext == ShellContext.NORMAL)
-        {
+        if (this.shellContext == ShellContext.NORMAL) {
             this.proc = Runtime.getRuntime().exec(cmd);
-        }
-        else
-        {
+        } else {
             //only done for root shell...
             this.proc = Runtime.getRuntime().exec(cmd + " --context " + this.shellContext.getValue());
         }
@@ -134,8 +129,7 @@ public class Shell
         Worker worker = new Worker(this);
         worker.start();
 
-        try
-        {
+        try {
             /**
              * The flow of execution will wait for the thread to die or wait until the
              * given timeout has expired.
@@ -149,15 +143,11 @@ public class Shell
             /**
              * The operation could not be completed before the timeout occured.
              */
-            if (worker.exit == -911)
-            {
+            if (worker.exit == -911) {
 
-                try
-                {
+                try {
                     this.proc.destroy();
-                }
-                catch (Exception e)
-                {
+                } catch (Exception ignored) {
                 }
 
                 closeQuietly(this.in);
@@ -168,15 +158,11 @@ public class Shell
             /**
              * Root access denied?
              */
-            else if (worker.exit == -42)
-            {
+            else if (worker.exit == -42) {
 
-                try
-                {
+                try {
                     this.proc.destroy();
-                }
-                catch (Exception e)
-                {
+                } catch (Exception ignored) {
                 }
 
                 closeQuietly(this.in);
@@ -187,8 +173,7 @@ public class Shell
             /**
              * Normal exit
              */
-            else
-            {
+            else {
                 /**
                  * The shell is open.
                  *
@@ -204,9 +189,7 @@ public class Shell
                 so.setPriority(Thread.NORM_PRIORITY);
                 so.start();
             }
-        }
-        catch (InterruptedException ex)
-        {
+        } catch (InterruptedException ex) {
             worker.interrupt();
             Thread.currentThread().interrupt();
             throw new TimeoutException();
@@ -214,18 +197,15 @@ public class Shell
     }
 
 
-    public Command add(Command command) throws IOException
-    {
-        if (this.close)
-        {
+    public Command add(Command command) throws IOException {
+        if (this.close) {
             throw new IllegalStateException(
                     "Unable to add commands to a closed shell");
         }
 
-        while (this.isCleaning)
-        {
+        // noinspection StatementWithEmptyBody
+        while (this.isCleaning) {
             //Don't add commands while cleaning
-            ;
         }
         this.commands.add(command);
 
@@ -234,8 +214,7 @@ public class Shell
         return command;
     }
 
-    public void useCWD(Context context) throws IOException, TimeoutException, RootDeniedException
-    {
+    public void useCWD(Context context) throws IOException, TimeoutException, RootDeniedException {
         add(
                 new CommandCapture(
                         -1,
@@ -244,14 +223,12 @@ public class Shell
         );
     }
 
-    private void cleanCommands()
-    {
+    private void cleanCommands() {
         this.isCleaning = true;
         int toClean = Math.abs(this.maxCommands - (this.maxCommands / 4));
         RootTools.log("Cleaning up: " + toClean);
 
-        for (int i = 0; i < toClean; i++)
-        {
+        for (int i = 0; i < toClean; i++) {
             this.commands.remove(0);
         }
 
@@ -260,40 +237,28 @@ public class Shell
         this.isCleaning = false;
     }
 
-    private void closeQuietly(final Reader input)
-    {
-        try
-        {
-            if (input != null)
-            {
+    private void closeQuietly(final Reader input) {
+        try {
+            if (input != null) {
                 input.close();
             }
-        }
-        catch (Exception ignore)
-        {
+        } catch (Exception ignore) {
         }
     }
 
-    private void closeQuietly(final Writer output)
-    {
-        try
-        {
-            if (output != null)
-            {
+    private void closeQuietly(final Writer output) {
+        try {
+            if (output != null) {
                 output.close();
             }
-        }
-        catch (Exception ignore)
-        {
+        } catch (Exception ignore) {
         }
     }
 
-    public void close() throws IOException
-    {
+    public void close() throws IOException {
         RootTools.log("Request to close shell!");
 
-        synchronized (this.commands)
-        {
+        synchronized (this.commands) {
             /**
              * instruct the two threads monitoring input and output
              * of the shell to close.
@@ -303,70 +268,56 @@ public class Shell
         }
 
         int count = 0;
-        while (isExecuting)
-        {
+        while (isExecuting) {
             RootTools.log("Waiting on shell to finish executing before closing...");
             count++;
 
             //failsafe to keep from hanging...
-            if (count > 1000)
-            {
+            if (count > 1000) {
                 break;
             }
         }
 
         RootTools.log("Shell Closed!");
 
-        if (this == Shell.rootShell)
-        {
+        if (this == Shell.rootShell) {
             Shell.rootShell = null;
-        }
-        else if (this == Shell.shell)
-        {
+        } else if (this == Shell.shell) {
             Shell.shell = null;
-        }
-        else if (this == Shell.customShell)
-        {
+        } else if (this == Shell.customShell) {
             Shell.customShell = null;
         }
     }
 
-    public static void closeCustomShell() throws IOException
-    {
+    public static void closeCustomShell() throws IOException {
         RootTools.log("Request to close custom shell!");
 
-        if (Shell.customShell == null)
-        {
+        if (Shell.customShell == null) {
             return;
         }
 
         Shell.customShell.close();
     }
 
-    public static void closeRootShell() throws IOException
-    {
+    public static void closeRootShell() throws IOException {
         RootTools.log("Request to close root shell!");
 
-        if (Shell.rootShell == null)
-        {
+        if (Shell.rootShell == null) {
             return;
         }
         Shell.rootShell.close();
     }
 
-    public static void closeShell() throws IOException
-    {
+    public static void closeShell() throws IOException {
         RootTools.log("Request to close normal shell!");
 
-        if (Shell.shell == null)
-        {
+        if (Shell.shell == null) {
             return;
         }
         Shell.shell.close();
     }
 
-    public static void closeAll() throws IOException
-    {
+    public static void closeAll() throws IOException {
         RootTools.log("Request to close all shells!");
 
         Shell.closeShell();
@@ -374,49 +325,37 @@ public class Shell
         Shell.closeCustomShell();
     }
 
-    public int getCommandQueuePosition(Command cmd)
-    {
+    public int getCommandQueuePosition(Command cmd) {
         return this.commands.indexOf(cmd);
     }
 
-    public String getCommandQueuePositionString(Command cmd)
-    {
+    public String getCommandQueuePositionString(Command cmd) {
         return "Command is in position " + getCommandQueuePosition(cmd) + " currently executing command at position " + this.write + " and the number of commands is " + commands.size();
     }
 
-    public static Shell getOpenShell()
-    {
-        if (Shell.customShell != null)
-        {
+    public static Shell getOpenShell() {
+        if (Shell.customShell != null) {
             return Shell.customShell;
-        }
-        else if (Shell.rootShell != null)
-        {
+        } else if (Shell.rootShell != null) {
             return Shell.rootShell;
-        }
-        else
-        {
+        } else {
             return Shell.shell;
         }
     }
 
-    public static boolean isShellOpen()
-    {
+    public static boolean isShellOpen() {
         return Shell.shell == null;
     }
 
-    public static boolean isCustomShellOpen()
-    {
+    public static boolean isCustomShellOpen() {
         return Shell.customShell == null;
     }
 
-    public static boolean isRootShellOpen()
-    {
+    public static boolean isRootShellOpen() {
         return Shell.rootShell == null;
     }
 
-    public static boolean isAnyShellOpen()
-    {
+    public static boolean isAnyShellOpen() {
         return Shell.shell != null || Shell.rootShell != null || Shell.customShell != null;
     }
 
@@ -428,38 +367,30 @@ public class Shell
      * <p/>
      * The notification of a new command is handled by the method add in this class
      */
-    private Runnable input = new Runnable()
-    {
-        public void run()
-        {
+    private Runnable input = new Runnable() {
+        public void run() {
 
-            try
-            {
-                while (true)
-                {
+            try {
+                while (true) {
 
-                    synchronized (commands)
-                    {
+                    synchronized (commands) {
                         /**
                          * While loop is used in the case that notifyAll is called
                          * and there are still no commands to be written, a rare
                          * case but one that could happen.
                          */
-                        while (!close && write >= commands.size())
-                        {
+                        while (!close && write >= commands.size()) {
                             isExecuting = false;
                             commands.wait();
                         }
                     }
 
-                    if (write >= maxCommands)
-                    {
+                    if (write >= maxCommands) {
 
                         /**
                          * wait for the read to catch up.
                          */
-                        while (read != write)
-                        {
+                        while (read != write) {
                             RootTools.log("Waiting for read and write to catch up before cleanup.");
                         }
                         /**
@@ -474,8 +405,7 @@ public class Shell
                      * We write the command followed by the token to indicate
                      * the end of the command execution
                      */
-                    if (write < commands.size())
-                    {
+                    if (write < commands.size()) {
                         isExecuting = true;
                         Command cmd = commands.get(write);
                         cmd.startExecution();
@@ -487,9 +417,7 @@ public class Shell
                         out.flush();
                         write++;
                         totalExecuted++;
-                    }
-                    else if (close)
-                    {
+                    } else if (close) {
                         /**
                          * close the thread, the shell is closing.
                          */
@@ -500,31 +428,19 @@ public class Shell
                         return;
                     }
                 }
-            }
-            catch (IOException e)
-            {
+            } catch (IOException | InterruptedException e) {
                 RootTools.log(e.getMessage(), 2, e);
-            }
-            catch (InterruptedException e)
-            {
-                RootTools.log(e.getMessage(), 2, e);
-            }
-            finally
-            {
+            } finally {
                 write = 0;
                 closeQuietly(out);
             }
         }
     };
 
-    protected void notifyThreads()
-    {
-        Thread t = new Thread()
-        {
-            public void run()
-            {
-                synchronized (commands)
-                {
+    protected void notifyThreads() {
+        Thread t = new Thread() {
+            public void run() {
+                synchronized (commands) {
                     commands.notifyAll();
                 }
             }
@@ -536,16 +452,12 @@ public class Shell
     /**
      * Runnable to monitor the responses from the open shell.
      */
-    private Runnable output = new Runnable()
-    {
-        public void run()
-        {
-            try
-            {
+    private Runnable output = new Runnable() {
+        public void run() {
+            try {
                 Command command = null;
 
-                while (!close)
-                {
+                while (!close) {
                     isReading = false;
                     String line = in.readLine();
                     isReading = true;
@@ -553,17 +465,13 @@ public class Shell
                     /**
                      * If we recieve EOF then the shell closed
                      */
-                    if (line == null)
-                    {
+                    if (line == null) {
                         break;
                     }
 
-                    if (command == null)
-                    {
-                        if (read >= commands.size())
-                        {
-                            if (close)
-                            {
+                    if (command == null) {
+                        if (read >= commands.size()) {
+                            if (close) {
                                 break;
                             }
 
@@ -581,78 +489,61 @@ public class Shell
                     int pos = line.indexOf(token);
 
 
-                    if (pos == -1)
-                    {
+                    if (pos == -1) {
                         /**
                          * send the output for the implementer to process
                          */
                         command.output(command.id, line);
                     }
-                    if (pos > 0)
-                    {
+                    if (pos > 0) {
                         /**
                          * token is suffix of output, send output part to implementer
                          */
                         command.output(command.id, line.substring(0, pos));
                     }
-                    if (pos >= 0)
-                    {
+                    if (pos >= 0) {
                         line = line.substring(pos);
                         String fields[] = line.split(" ");
 
-                        if (fields.length >= 2 && fields[1] != null)
-                        {
+                        if (fields.length >= 2 && fields[1] != null) {
                             int id = 0;
 
-                            try
-                            {
+                            try {
                                 id = Integer.parseInt(fields[1]);
-                            }
-                            catch (NumberFormatException e)
-                            {
+                            } catch (NumberFormatException ignored) {
                             }
 
                             int exitCode = -1;
 
-                            try
-                            {
+                            try {
                                 exitCode = Integer.parseInt(fields[2]);
-                            }
-                            catch (NumberFormatException e)
-                            {
+                            } catch (NumberFormatException ignored) {
                             }
 
-                            if (id == totalRead)
-                            {
+                            if (id == totalRead) {
                                 command.setExitCode(exitCode);
                                 command.commandFinished();
                                 command = null;
 
                                 read++;
                                 totalRead++;
-                                continue;
                             }
                         }
                     }
                 }
 
                 RootTools.log("Read all output");
-                try
-                {
+                try {
                     proc.waitFor();
                     proc.destroy();
-                }
-                catch (Exception e)
-                {
+                } catch (Exception ignored) {
                 }
 
                 closeQuietly(out);
                 closeQuietly(in);
 
-                while (read < commands.size())
-                {
-                    if (command == null)
-                    {
+                while (read < commands.size()) {
+                    if (command == null) {
                         command = commands.get(read);
                     }
 
@@ -663,13 +554,9 @@ public class Shell
 
                 read = 0;
 
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 RootTools.log(e.getMessage(), 2, e);
-            }
-            finally
-            {
+            } finally {
                 RootTools.log("Shell destroyed");
                 isClosed = true;
                 isReading = false;
@@ -677,198 +564,147 @@ public class Shell
         }
     };
 
-    public static void runRootCommand(Command command) throws IOException, TimeoutException, RootDeniedException
-    {
+    public static void runRootCommand(Command command) throws IOException, TimeoutException, RootDeniedException {
         Shell.startRootShell().add(command);
     }
 
-    public static void runCommand(Command command) throws IOException, TimeoutException
-    {
+    public static void runCommand(Command command) throws IOException, TimeoutException {
         Shell.startShell().add(command);
     }
 
-    public static Shell startRootShell() throws IOException, TimeoutException, RootDeniedException
-    {
+    public static Shell startRootShell() throws IOException, TimeoutException, RootDeniedException {
         return Shell.startRootShell(0, 3);
     }
 
-    public static Shell startRootShell(int timeout) throws IOException, TimeoutException, RootDeniedException
-    {
+    public static Shell startRootShell(int timeout) throws IOException, TimeoutException, RootDeniedException {
         return Shell.startRootShell(timeout, 3);
     }
 
-    public static Shell startRootShell(int timeout, int retry) throws IOException, TimeoutException, RootDeniedException
-    {
+    public static Shell startRootShell(int timeout, int retry) throws IOException, TimeoutException, RootDeniedException {
         return Shell.startRootShell(timeout, Shell.defaultContext, retry);
     }
 
-    public static Shell startRootShell(int timeout, ShellContext shellContext, int retry) throws IOException, TimeoutException, RootDeniedException
-    {
+    public static Shell startRootShell(int timeout, ShellContext shellContext, int retry) throws IOException, TimeoutException, RootDeniedException {
         // keep prompting the user until they accept for x amount of times...
         int retries = 0;
 
-        if (Shell.rootShell == null)
-        {
+        if (Shell.rootShell == null) {
 
             RootTools.log("Starting Root Shell!");
             String cmd = "su";
-            while (Shell.rootShell == null)
-            {
-                try
-                {
+            while (Shell.rootShell == null) {
+                try {
                     RootTools.log("Trying to open Root Shell, attempt #" + retries);
                     Shell.rootShell = new Shell(cmd, ShellType.ROOT, shellContext, timeout);
-                }
-                catch (IOException e)
-                {
-                    if (retries++ >= retry)
-                    {
+                } catch (IOException e) {
+                    if (retries++ >= retry) {
                         RootTools.log("IOException, could not start shell");
                         throw e;
                     }
-                }
-                catch (RootDeniedException e)
-                {
+                } catch (RootDeniedException e) {
                     RootTools.log("RootDeniedException, could not start shell");
                     throw e;
-                }
-                catch (TimeoutException e)
-                {
-                    if (retries++ >= retry)
-                    {
+                } catch (TimeoutException e) {
+                    if (retries++ >= retry) {
                         RootTools.log("TimeoutException, could not start shell");
                         throw e;
                     }
                 }
             }
-        }
-        else if (Shell.rootShell.shellContext != shellContext)
-        {
-            try
-            {
+        } else if (Shell.rootShell.shellContext != shellContext) {
+            try {
                 RootTools.log("Context is different than open shell, switching context... " + Shell.rootShell.shellContext + " VS " + shellContext);
                 Shell.rootShell.switchRootShellContext(shellContext);
-            }
-            catch (IOException e)
-            {
-                if (retries++ >= retry)
-                {
+            } catch (IOException e) {
+                // noinspection UnusedAssignment
+                if (retries++ >= retry) {
                     RootTools.log("IOException, could not switch context!");
                     throw e;
                 }
-            }
-            catch (RootDeniedException e)
-            {
-                if (retries++ >= retry)
-                {
+            } catch (RootDeniedException e) {
+                // noinspection UnusedAssignment
+                if (retries++ >= retry) {
                     RootTools.log("RootDeniedException, could not switch context!");
                     throw e;
                 }
-            }
-            catch (TimeoutException e)
-            {
-                if (retries++ >= retry)
-                {
+            } catch (TimeoutException e) {
+                // noinspection UnusedAssignment
+                if (retries++ >= retry) {
                     RootTools.log("TimeoutException, could not switch context!");
                     throw e;
                 }
             }
-        }
-        else
-        {
+        } else {
             RootTools.log("Using Existing Root Shell!");
         }
 
         return Shell.rootShell;
     }
 
-    public static Shell startCustomShell(String shellPath) throws IOException, TimeoutException, RootDeniedException
-    {
+    public static Shell startCustomShell(String shellPath) throws IOException, TimeoutException, RootDeniedException {
         return Shell.startCustomShell(shellPath, 0);
     }
 
-    public static Shell startCustomShell(String shellPath, int timeout) throws IOException, TimeoutException, RootDeniedException
-    {
+    public static Shell startCustomShell(String shellPath, int timeout) throws IOException, TimeoutException, RootDeniedException {
 
-        if (Shell.customShell == null)
-        {
+        if (Shell.customShell == null) {
             RootTools.log("Starting Custom Shell!");
             Shell.customShell = new Shell(shellPath, ShellType.CUSTOM, ShellContext.NORMAL, timeout);
-        }
-        else
-        {
+        } else {
             RootTools.log("Using Existing Custom Shell!");
         }
 
         return Shell.customShell;
     }
 
-    public static Shell startShell() throws IOException, TimeoutException
-    {
+    public static Shell startShell() throws IOException, TimeoutException {
         return Shell.startShell(0);
     }
 
-    public static Shell startShell(int timeout) throws IOException, TimeoutException
-    {
+    public static Shell startShell(int timeout) throws IOException, TimeoutException {
 
-        try
-        {
-            if (Shell.shell == null)
-            {
+        try {
+            if (Shell.shell == null) {
                 RootTools.log("Starting Shell!");
                 Shell.shell = new Shell("/system/bin/sh", ShellType.NORMAL, ShellContext.NORMAL, timeout);
-            }
-            else
-            {
+            } else {
                 RootTools.log("Using Existing Shell!");
             }
             return Shell.shell;
-        }
-        catch (RootDeniedException e)
-        {
+        } catch (RootDeniedException e) {
             //Root Denied should never be thrown.
             throw new IOException();
         }
     }
 
-    public Shell switchRootShellContext(ShellContext shellContext) throws IOException, TimeoutException, RootDeniedException
-    {
-        if (this.shellType == ShellType.ROOT)
-        {
-            try
-            {
+    public Shell switchRootShellContext(ShellContext shellContext) throws IOException, TimeoutException, RootDeniedException {
+        if (this.shellType == ShellType.ROOT) {
+            try {
                 Shell.closeRootShell();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 RootTools.log("Problem closing shell while trying to switch context...");
             }
 
             //create new root shell with new context...
 
             return Shell.startRootShell(this.shellTimeout, shellContext, 3);
-        }
-        else
-        {
+        } else {
             //can only switch context on a root shell...
             RootTools.log("Can only switch context on a root shell!");
             return this;
         }
     }
 
-    protected static class Worker extends Thread
-    {
+    protected static class Worker extends Thread {
         public int exit = -911;
 
         public Shell shell;
 
-        private Worker(Shell shell)
-        {
+        private Worker(Shell shell) {
             this.shell = shell;
         }
 
-        public void run()
-        {
+        public void run() {
 
             /**
              * Trying to open the shell.
@@ -880,25 +716,18 @@ public class Shell
              * If we do not find it then we determine the error and report
              * it by setting the value of the variable exit
              */
-            try
-            {
+            try {
                 shell.out.write("echo Started\n");
                 shell.out.flush();
 
-                while (true)
-                {
+                while (true) {
                     String line = shell.in.readLine();
 
-                    if (line == null)
-                    {
+                    if (line == null) {
                         throw new EOFException();
-                    }
-                    else if ("".equals(line))
-                    {
+                    } else if ("".equals(line)) {
                         continue;
-                    }
-                    else if ("Started".equals(line))
-                    {
+                    } else if ("Started".equals(line)) {
                         this.exit = 1;
                         setShellOom();
                         break;
@@ -906,16 +735,11 @@ public class Shell
 
                     shell.error = "unkown error occured.";
                 }
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 exit = -42;
-                if (e.getMessage() != null)
-                {
+                if (e.getMessage() != null) {
                     shell.error = e.getMessage();
-                }
-                else
-                {
+                } else {
                     shell.error = "RootAccess denied?.";
                 }
             }
@@ -927,18 +751,13 @@ public class Shell
          * and discard outputs
          * 
          */
-        private void setShellOom()
-        {
-            try
-            {
+        private void setShellOom() {
+            try {
                 Class<?> processClass = shell.proc.getClass();
                 Field field;
-                try
-                {
+                try {
                     field = processClass.getDeclaredField("pid");
-                }
-                catch (NoSuchFieldException e)
-                {
+                } catch (NoSuchFieldException e) {
                     field = processClass.getDeclaredField("id");
                 }
                 field.setAccessible(true);
@@ -946,9 +765,7 @@ public class Shell
                 shell.out.write("(echo -17 > /proc/" + pid + "/oom_adj) &> /dev/null\n");
                 shell.out.write("(echo -17 > /proc/$$/oom_adj) &> /dev/null\n");
                 shell.out.flush();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

@@ -20,25 +20,22 @@
  * limitations under that License.
  */
 
-package com.stericson.RootTools.internal;
+package com.stericson.roottools.internal;
+
+import com.stericson.roottools.containers.Mount;
+import com.stericson.roottools.containers.Permissions;
+import com.stericson.roottools.containers.Symlink;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.stericson.RootTools.containers.Mount;
-import com.stericson.RootTools.containers.Permissions;
-import com.stericson.RootTools.containers.Symlink;
-
-public class InternalVariables
-{
-
+@SuppressWarnings({"WeakerAccess", "unused"})
+public class InternalVariables {
     // ----------------------
     // # Internal Variables #
     // ----------------------
-
-
     protected static boolean accessGiven = false;
     protected static boolean nativeToolsReady = false;
     protected static boolean found = false;
@@ -60,8 +57,7 @@ public class InternalVariables
     protected static final String PS_REGEX = "^\\S+\\s+([0-9]+).*$";
     protected static Pattern psPattern;
 
-    static
-    {
+    static {
         psPattern = Pattern.compile(PS_REGEX);
     }
 }
