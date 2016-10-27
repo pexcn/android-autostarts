@@ -20,14 +20,12 @@ import android.text.style.ClickableSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ExpandableListView;
-import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -281,33 +279,12 @@ public class ListActivity extends ExpandableListActivity {
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu items for use in the action bar
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.actionbar, menu);
+        getMenuInflater().inflate(R.menu.actionbar, menu);
         mActionBarMenu = menu;
-
         mExpandCollapseToggleItem = menu.findItem(R.id.expand);
         mGroupingModeItem = menu.findItem(R.id.grouping);
         mReloadItem = menu.findItem(R.id.reload);
-
-        SearchView search = (SearchView) menu.findItem(R.id.search).getActionView();
-        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String query) {
-                mListAdapter.setTextFilter(query);
-                updateEmptyText();
-                mListAdapter.notifyDataSetChanged();
-                return true;
-
-            }
-        });
-
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
     @Override
