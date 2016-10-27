@@ -20,19 +20,12 @@ import java.util.ArrayList;
 
 
 public class EventDetailsFragment extends DialogFragment {
-    static EventDetailsFragment newInstance(IntentFilterInfo event) {
+    public static EventDetailsFragment newInstance(IntentFilterInfo event) {
         EventDetailsFragment f = new EventDetailsFragment();
-
         Bundle args = new Bundle();
         args.putParcelable("event", event);
         f.setArguments(args);
-
         return f;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -51,14 +44,8 @@ public class EventDetailsFragment extends DialogFragment {
                     Html.fromHtml(formattedString, Html.FROM_HTML_MODE_LEGACY));
         } else {
             // noinspection deprecation
-            ((TextView) v.findViewById(R.id.message)).setText(
-                    Html.fromHtml(formattedString));
+            ((TextView) v.findViewById(R.id.message)).setText(Html.fromHtml(formattedString));
         }
-
-        // I prefer this warning to be *inside* the Disable menu options. However, for this,
-        // we would have to, apparently, customize the dialog creation.
-        v.findViewById(R.id.sys_warning).setVisibility(
-                event.componentInfo.packageInfo.isSystem ? View.VISIBLE : View.GONE);
 
         final boolean componentIsEnabled = activity.mToggleService.getQueuedState(
                 event.componentInfo, event.componentInfo.isCurrentlyEnabled());
