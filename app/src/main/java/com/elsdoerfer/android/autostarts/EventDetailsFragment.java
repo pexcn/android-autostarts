@@ -15,8 +15,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.elsdoerfer.android.autostarts.db.IntentFilterInfo;
-import com.elsdoerfer.android.autostarts.utils.MarketUtils;
-import com.elsdoerfer.android.autostarts.utils.RootFeatures;
 
 import java.util.ArrayList;
 
@@ -65,25 +63,14 @@ public class EventDetailsFragment extends DialogFragment {
         final boolean componentIsEnabled = activity.mToggleService.getQueuedState(
                 event.componentInfo, event.componentInfo.isCurrentlyEnabled());
 
-        // Build list of dialog items to show. Optional classes like RootFeatures or
-        // MarketUtils will affect what is shown based on build type.
         ArrayList<CharSequence> dialogItems = new ArrayList<>();
-        if (RootFeatures.Enabled)
-            dialogItems.add(getResources().getString(
-                    (componentIsEnabled) ? R.string.disable : R.string.enable));
+        dialogItems.add(getResources().getString((componentIsEnabled) ? R.string.disable : R.string.enable));
         dialogItems.add(getResources().getString(R.string.appliation_info));
-        dialogItems.add(getResources().getString(MarketUtils.FIND_IN_MARKET_TEXT));
 
         return new AlertDialog.Builder(activity).setItems(
                 dialogItems.toArray(new CharSequence[dialogItems.size()]),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        // If the first menu item (toggle state) has been removed, account
-                        // for this by subtracting one from the index. This is terrible though.
-                        // Find a different way to associate the handler code with each item (TODO).
-                        if (!RootFeatures.Enabled)
-                            which--;
-
                         boolean doEnable = !componentIsEnabled;
                         switch (which) {
                             case 0:
@@ -110,10 +97,6 @@ public class EventDetailsFragment extends DialogFragment {
                                     } catch (ActivityNotFoundException ignored) {
                                     }
                                 }
-                                break;
-                            case 2:
-                                MarketUtils.findPackageInMarket(activity,
-                                        event.componentInfo.packageInfo.packageName);
                                 break;
                         }
                         dialog.dismiss();
