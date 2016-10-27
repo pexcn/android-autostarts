@@ -25,8 +25,9 @@ import android.widget.TextView;
 import com.elsdoerfer.android.autostarts.db.ComponentInfo;
 import com.elsdoerfer.android.autostarts.db.IntentFilterInfo;
 import com.elsdoerfer.android.autostarts.db.PackageInfo;
+import com.elsdoerfer.android.autostarts.utils.Utils;
 
-import static com.elsdoerfer.android.autostarts.Utils.containsIgnoreCase;
+import static com.elsdoerfer.android.autostarts.utils.Utils.containsIgnoreCase;
 
 
 /**

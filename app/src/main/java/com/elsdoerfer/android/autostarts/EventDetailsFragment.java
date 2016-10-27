@@ -12,55 +12,71 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Html;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.elsdoerfer.android.autostarts.db.IntentFilterInfo;
+import com.elsdoerfer.android.autostarts.utils.MarketUtils;
+import com.elsdoerfer.android.autostarts.utils.RootFeatures;
 
 import java.util.ArrayList;
 
-public class EventDetailsFragment extends DialogFragment {
-    private ListActivity mActivity;
 
-    public static EventDetailsFragment newInstance(IntentFilterInfo event) {
-        EventDetailsFragment fragment = new EventDetailsFragment();
+public class EventDetailsFragment extends DialogFragment {
+    static EventDetailsFragment newInstance(IntentFilterInfo event) {
+        EventDetailsFragment f = new EventDetailsFragment();
 
         Bundle args = new Bundle();
         args.putParcelable("event", event);
-        fragment.setArguments(args);
+        f.setArguments(args);
 
-        return fragment;
+        return f;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        mActivity = (ListActivity) getActivity();
         super.onCreate(savedInstanceState);
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final IntentFilterInfo event = getArguments().getParcelable("event");
-        View view = mActivity.getLayoutInflater().inflate(R.layout.receiver_info_panel, (ViewGroup) getView(), false);
+        final ListActivity activity = (ListActivity) getActivity();
 
+        View v = activity.getLayoutInflater().inflate(
+                R.layout.receiver_info_panel, null, false);
         assert event != null;
-        String formattedString = String.format(getString(R.string.receiver_info), event.componentInfo.componentName, event.action, event.priority);
+        String formattedString = String.format(
+                getString(R.string.receiver_info),
+                event.componentInfo.componentName, event.action, event.priority);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            ((TextView) view.findViewById(R.id.message)).setText(Html.fromHtml(formattedString, Html.FROM_HTML_MODE_LEGACY));
+            ((TextView) v.findViewById(R.id.message)).setText(
+                    Html.fromHtml(formattedString, Html.FROM_HTML_MODE_LEGACY));
         } else {
             // noinspection deprecation
-            ((TextView) view.findViewById(R.id.message)).setText(Html.fromHtml(formattedString));
+            ((TextView) v.findViewById(R.id.message)).setText(
+                    Html.fromHtml(formattedString));
         }
 
-        final boolean componentIsEnabled = mActivity.mToggleService.getQueuedState(event.componentInfo, event.componentInfo.isCurrentlyEnabled());
+        // I prefer this warning to be *inside* the Disable menu options. However, for this,
+        // we would have to, apparently, customize the dialog creation.
+        v.findViewById(R.id.sys_warning).setVisibility(
+                event.componentInfo.packageInfo.isSystem ? View.VISIBLE : View.GONE);
+
+        final boolean componentIsEnabled = activity.mToggleService.getQueuedState(
+                event.componentInfo, event.componentInfo.isCurrentlyEnabled());
 
         // Build list of dialog items to show. Optional classes like RootFeatures or
+        // MarketUtils will affect what is shown based on build type.
         ArrayList<CharSequence> dialogItems = new ArrayList<>();
-        dialogItems.add(getResources().getString((componentIsEnabled) ? R.string.disable : R.string.enable));
+        if (RootFeatures.Enabled)
+            dialogItems.add(getResources().getString(
+                    (componentIsEnabled) ? R.string.disable : R.string.enable));
         dialogItems.add(getResources().getString(R.string.appliation_info));
+        dialogItems.add(getResources().getString(MarketUtils.FIND_IN_MARKET_TEXT));
 
-        return new AlertDialog.Builder(mActivity)
-                .setItems(dialogItems.toArray(new CharSequence[dialogItems.size()]), new DialogInterface.OnClickListener() {
+        return new AlertDialog.Builder(activity).setItems(
+                dialogItems.toArray(new CharSequence[dialogItems.size()]),
+                new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // If the first menu item (toggle state) has been removed, account
                         // for this by subtracting one from the index. This is terrible though.
@@ -71,7 +87,7 @@ public class EventDetailsFragment extends DialogFragment {
                         boolean doEnable = !componentIsEnabled;
                         switch (which) {
                             case 0:
-                                mActivity.addJob(event.componentInfo, doEnable);
+                                activity.addJob(event.componentInfo, doEnable);
                                 break;
 
                             case 1:
@@ -95,13 +111,15 @@ public class EventDetailsFragment extends DialogFragment {
                                     }
                                 }
                                 break;
+                            case 2:
+                                MarketUtils.findPackageInMarket(activity,
+                                        event.componentInfo.packageInfo.packageName);
+                                break;
                         }
                         dialog.dismiss();
                     }
                 })
-                .setTitle(event.componentInfo.getLabel())
-                .setView(view)
-                .create();
+                .setTitle(event.componentInfo.getLabel()).setView(v).create();
     }
 
 }

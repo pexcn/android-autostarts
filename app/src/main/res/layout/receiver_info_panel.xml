@@ -7,6 +7,30 @@
     android:paddingRight="10dp"
     android:paddingTop="5dp">
 
+    <LinearLayout
+        android:id="@+id/sys_warning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="4dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_dialog_alert" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sys_disable" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/message"
         android:layout_width="wrap_content"

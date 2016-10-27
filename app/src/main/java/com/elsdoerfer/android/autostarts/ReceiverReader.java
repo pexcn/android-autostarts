@@ -14,6 +14,7 @@ import android.util.Log;
 import com.elsdoerfer.android.autostarts.db.ComponentInfo;
 import com.elsdoerfer.android.autostarts.db.IntentFilterInfo;
 import com.elsdoerfer.android.autostarts.db.PackageInfo;
+import com.elsdoerfer.android.autostarts.utils.Utils;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;

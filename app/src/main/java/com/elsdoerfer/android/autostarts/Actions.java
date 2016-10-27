@@ -7,6 +7,8 @@ import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.telephony.TelephonyManager;
 
+import com.elsdoerfer.android.autostarts.utils.Utils;
+
 import java.util.LinkedHashMap;
 
 /**
