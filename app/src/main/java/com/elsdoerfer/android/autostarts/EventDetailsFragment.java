@@ -3,13 +3,9 @@ package com.elsdoerfer.android.autostarts;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
@@ -33,8 +29,7 @@ public class EventDetailsFragment extends DialogFragment {
         final IntentFilterInfo event = getArguments().getParcelable("event");
         final ListActivity activity = (ListActivity) getActivity();
 
-        View v = activity.getLayoutInflater().inflate(
-                R.layout.receiver_info_panel, null, false);
+        View v = activity.getLayoutInflater().inflate(R.layout.receiver_info_panel, null, false);
         assert event != null;
         String formattedString = String.format(
                 getString(R.string.receiver_info),
@@ -52,7 +47,6 @@ public class EventDetailsFragment extends DialogFragment {
 
         ArrayList<CharSequence> dialogItems = new ArrayList<>();
         dialogItems.add(getResources().getString((componentIsEnabled) ? R.string.disable : R.string.enable));
-        dialogItems.add(getResources().getString(R.string.appliation_info));
 
         return new AlertDialog.Builder(activity).setItems(
                 dialogItems.toArray(new CharSequence[dialogItems.size()]),
@@ -62,28 +56,6 @@ public class EventDetailsFragment extends DialogFragment {
                         switch (which) {
                             case 0:
                                 activity.addJob(event.componentInfo, doEnable);
-                                break;
-
-                            case 1:
-                                String packageName =
-                                        event.componentInfo.packageInfo.packageName;
-                                Intent infoIntent = new Intent();
-                                infoIntent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                infoIntent.setData(Uri.parse("package:" + packageName));
-                                try {
-                                    startActivity(infoIntent);
-                                } catch (ActivityNotFoundException e) {
-                                    // 2.2 and below.
-                                    infoIntent = new Intent();
-                                    infoIntent.setClassName("com.android.settings",
-                                            "com.android.settings.InstalledAppDetails");
-                                    infoIntent.putExtra("com.android.settings.ApplicationPkgName",
-                                            packageName);
-                                    try {
-                                        startActivity(infoIntent);
-                                    } catch (ActivityNotFoundException ignored) {
-                                    }
-                                }
                                 break;
                         }
                         dialog.dismiss();
