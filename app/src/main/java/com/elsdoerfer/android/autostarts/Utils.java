@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings("WeakerAccess")
 public class Utils {
     public static final String TAG = "Autostarts";
     private static Boolean isSELinuxEnforcing = null;

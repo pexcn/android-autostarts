@@ -17,13 +17,10 @@ import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
@@ -484,37 +481,18 @@ public class ListActivity extends ExpandableListActivity {
         startService(intent);
     }
 
-    // TODO: Instead of showing a toast, fade in a custom info bar, then
-    // fade out. This would be an improvement because we could control
-    // it better: Show it longer, but have it disappear when the user
-    // clicks on it (toasts don't receive clicks).
-    // Consider: https://github.com/johnkil/Android-AppMsg
     public void showInfoToast(String action) {
-        Object[] data = Actions.MAP.get(action);
+        final Object[] data = Actions.MAP.get(action);
+
         if (mInfoToast == null) {
-            LayoutInflater inflater = getLayoutInflater();
-            View layout = inflater.inflate(R.layout.detail_toast,
-                    (ViewGroup) findViewById(R.id.root));
-            mInfoToast = new Toast(this);
-            mInfoToast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 0, 0);
-            mInfoToast.setDuration(Toast.LENGTH_LONG);
-            mInfoToast.setView(layout);
+            mInfoToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
         }
-        ((TextView) mInfoToast.getView().findViewById(R.id.title)).setText(getIntentName(action));
-        TextView message = ((TextView) mInfoToast.getView().findViewById(android.R.id.message));
-        CharSequence info = "";
-        if (data == null) {
-            message.setVisibility(View.GONE);
-        } else {
-            if (data[2] != null)  // Hide info text both for null and empty string values.
-                info = getResources().getText((Integer) data[2]);
-            if (!info.equals("")) {
-                message.setText(info);
-                message.setVisibility(View.VISIBLE);
-            } else {
-                message.setVisibility(View.GONE);
-            }
+
+        if (data[2] != null) {
+            CharSequence msg = getResources().getText((Integer) data[2]);
+            mInfoToast.setText(msg);
         }
+
         mInfoToast.show();
     }
 
